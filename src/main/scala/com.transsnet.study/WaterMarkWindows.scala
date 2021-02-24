@@ -14,6 +14,7 @@ import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindo
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow
 import org.apache.flink.util.Collector
+import sun.awt.image.SunWritableRaster.DataStealer
 
 
 
@@ -34,8 +35,7 @@ object WaterMarkWindows {
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 
     //设置source 本地socket
-    val text: DataStream[String] = env.socketTextStream("hadoop000", 9000)
-
+    val text: DataStream[String] = env.socketTextStream("hadoop001", 9000)
 
     val lateText = new OutputTag[(String, Long, Long, Long)]("late-data")
 
