@@ -4,6 +4,8 @@ import org.apache.flink.api.common.functions.FoldFunction;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.configuration.ConfigConstants;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -46,7 +48,13 @@ public class GroupedProcessingTimeWindowSample {
     }
 
     public static void main(String[] args) throws Exception {
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        //StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+
+        //流计算执行环境（上下文），获取一个执行环境 这个在本地测试有ui界面
+        Configuration config = new Configuration();
+        config.setBoolean(ConfigConstants.LOCAL_START_WEBSERVER, true);
+        StreamExecutionEnvironment env =StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(config);
         env.setParallelism(3);
 
         DataStream<Tuple2<String, Integer>> ds = env.addSource(new DataSource());

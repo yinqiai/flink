@@ -4,7 +4,6 @@ package com.transsnet.study.study20210223
 import org.apache.flink.api.java.io.CsvInputFormat
 import org.apache.flink.core.fs.Path
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
-import org.apache.hadoop.mapred.FileInputFormat
 //如果使用flink已经通过TypeInformation定义数据类型，TypeInformation类不会自动创建，需要隐试参数方式引入（如下），代码不会直接抛出异常，运行时候会报错
 // could not find implicit value for evidence parameter of type org.apache.flink.api.common.typeinfo.TypeInformation[(String, Int)]
 import org.apache.flink.api.scala._
