@@ -13,7 +13,7 @@ import org.apache.flink.api.scala._
   * @author yinqi
   *
   */
-object ProcessWindowFunction {
+object ProcessWindowFunctionCus {
   def main(args: Array[String]): Unit = {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
 
