@@ -22,7 +22,7 @@ object AggregateFunctionCus {
     val result = inputStream.keyBy(_._1)
       //指定窗口类型
         .window(SlidingEventTimeWindows.of(Time.hours(1),Time.minutes(10)))
-      //指定聚合函数逻辑，将根据id分组分组给第二个字段求平均
+      //指定聚合函数逻辑，将根据id分组分组给第二个字段求平均 因
         .aggregate(new MyAverageAggregate)
 
     result.print()

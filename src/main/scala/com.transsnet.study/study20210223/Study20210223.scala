@@ -19,8 +19,9 @@ object Study20210223 {
     //便于测试，并行度设置为1
     //env.setParallelism(1)
     //1。测试读取本地文件
-    val txt = env.readTextFile("/Users/yinqi/test/test.txt")
-    val counts =txt.flatMap(_.toLowerCase.split(" ").filter(_.nonEmpty).map((_,1))).keyBy(0).sum(1)
+  /*  val txt = env.readTextFile("/Users/yinqi/test/test.txt")
+    val xx =txt.flatMap(_.toLowerCase.split(" ").filter(_.nonEmpty).map((_,1)))
+    val counts =txt.flatMap(_.toLowerCase.split(" ").filter(_.nonEmpty).map((_,1))).keyBy(0).sum(1)*/
     //counts.print()
     //==============flink支持数据类型：1。原生数据类型（Java基本类型（装箱），String类型 对应BasicTypeInfo）2。 java tuple类型 （new tuple2("a",1) 对应 TupleTYpeInfo）
     //==============3 scala Case class 对应 CaseClassTYpeInfo 包括scala tuple
@@ -34,12 +35,18 @@ object Study20210223 {
 //    val listStream = env.fromElements(List("name","yinqi","age",30,"name","chenlimin","age",30))
     //========================================================读取数据================================================================
     //1.csv格式
-    val csvStream=env.readFile(new CsvInputFormat[String] (new Path("/Users/yinqi/Desktop/chris/flink-doc/data_example.csv")){
+/*    val csvStream=env.readFile(new CsvInputFormat[String] (new Path("/Users/yinqi/Desktop/chris/flink-doc/data_example.csv")){
       override def fillRecord(out: String, objects: Array[AnyRef]): String = ???
-    },"/Users/yinqi/Desktop/chris/flink-doc/data_example.csv")
+    },"/Users/yinqi/Desktop/chris/flink-doc/data_example.csv")*/
     //val counts =csvStream.flatMap(_.toLowerCase.split(",").filter(_.nonEmpty).map((_,1))).keyBy(0).sum(1)
     //counts.print()
+//=========================================================转换算子=====================================================================
+    //1。keyBy  和 reduce(滚动进行数据聚合处理)
+    val date=env.fromElements(("a",5),("a",2),("b",4),("c",3),("c",4),("e",5))
+    val keyByDateStream =date.keyBy(0)
+    val reduceDataStream = keyByDateStream.reduce{(t1,t2)=>(t1._1,t1._2+t2._2)}
 
+    reduceDataStream.print()
     env.execute()
   }
 
