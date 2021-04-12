@@ -1,0 +1,36 @@
+sensor_1,1547718199,35.8
+sensor_6,1547718201,15.4
+sensor_7,1547718202,6.7
+sensor_7,1547718202,6.7
+sensor_10,1547718205,38.1
+sensor_1,1547718206,32
+sensor_1,1547718208,36.2
+sensor_1,1547718210,29.7
+sensor_1,1547718213,30.9
+sensor_1,1547718212,28.1
+sensor_1,1547718225,29
+sensor_1,1547718228,32.3
+sensor_1,1547718213,19.5
+sensor_1,1547718215,27.6
+sensor_1,1547718206,3
+sensor_1,1547718285,28
+sensor_1,1547718218,24.4
+sensor_1,1547718288,30
+sensor_1,1547718219,23
+sensor_1,1547718224,10
+sensor_1,1547718225,12
+
+结果
+result> (sensor_1,1547718199,32.0)
+result> (sensor_7,1547718202,6.7)
+result> (sensor_6,1547718201,15.4)
+result> (sensor_10,1547718205,38.1)
+result> (sensor_1,1547718210,28.1)
+result> (sensor_1,1547718210,19.5)
+result> (sensor_1,1547718210,19.5)
+result> (sensor_1,1547718199,3.0)
+result> (sensor_1,1547718225,29.0)
+result> (sensor_1,1547718210,19.5)
+late> 延迟数据|name:sensor_1延迟数据|datetime:1547718219延迟数据|temp:23.0
+late> 延迟数据|name:sensor_1延迟数据|datetime:1547718224延迟数据|temp:10.0
+result> (sensor_1,1547718225,12.0)
