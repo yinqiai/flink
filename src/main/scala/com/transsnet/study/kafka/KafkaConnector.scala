@@ -5,7 +5,7 @@ import java.util.Properties
 import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.api.scala._
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011
 
 import scala.util.Properties
 
@@ -39,7 +39,7 @@ object KafkaConnector {
    //2。处理自定义Java 类
 
    val streamData = env.addSource(
-    new FlinkKafkaConsumer[SourceEvent](TOPIC_NAME, new SourceEventSchema(), kafkaProps)
+    new FlinkKafkaConsumer011[SourceEvent](TOPIC_NAME, new SourceEventSchema(), kafkaProps)
    )
 
    val result=streamData//.flatMap(a=>{print(a.getName);List(a)})
