@@ -38,10 +38,10 @@ object WaterMarkWindowsTest {
       .keyBy(_._1)
       //设置窗口为滚动窗口，窗口大小为15s
       .window(TumblingEventTimeWindows.of(Time.seconds(15)))
-      //允许最大延迟时间是1min（经过测试这个时间是相对watermark的最近一个窗口的结束时间（非常重要）， 而不是最新的数据时间）
-      .allowedLateness(Time.minutes(1))
+      //允许最大延迟时间是1min（经过测试这个时间是相对watermark的最近一个窗口的结束时间（非常重要）， 而不是最新的数据时间）,注意，如果没有设置这个，则窗口只会在水位线过了之后触发计算一次
+      //.allowedLateness(Time.minutes(1))
       //迟到的数据放侧输出流里面
-      .sideOutputLateData(lateText)
+      //.sideOutputLateData(lateText)
       //窗口计算逻辑 计算逻辑为取name分组后的最早时间和最小温度值
         .reduce((lastTemp,newTemp)=> (lastTemp._1,lastTemp._2.min(newTemp._2),lastTemp._3.min(newTemp._3)))
         //.apply(new WindowFunction[] {})
