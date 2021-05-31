@@ -38,7 +38,7 @@ object WaterMarkWindowsTest {
       .keyBy(_._1)
       //设置窗口为滚动窗口，窗口大小为15s
       .window(TumblingEventTimeWindows.of(Time.seconds(15)))
-      //允许最大延迟时间是1min（经过测试这个时间是相对watermark的 而不是最新的数据时间）
+      //允许最大延迟时间是1min（经过测试这个时间是相对watermark的最近一个窗口的结束时间（非常重要）， 而不是最新的数据时间）
       .allowedLateness(Time.minutes(1))
       //迟到的数据放侧输出流里面
       .sideOutputLateData(lateText)
