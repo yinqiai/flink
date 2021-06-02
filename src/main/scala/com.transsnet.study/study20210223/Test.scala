@@ -13,5 +13,6 @@ object Test {
     val a="yinqi".map((_,1))
 
     println(a)
+    println(Long.MaxValue)
   }
 }

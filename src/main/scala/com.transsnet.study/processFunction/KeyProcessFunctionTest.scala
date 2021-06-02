@@ -4,21 +4,25 @@ import org.apache.flink.api.common.functions.RichFlatMapFunction
 import org.apache.flink.api.common.state.{ValueState, ValueStateDescriptor}
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction
+import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor
 import org.apache.flink.streaming.api.scala.{DataStream, OutputTag, StreamExecutionEnvironment, _}
+import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.util.Collector
 
 /**
   * @author yinqi
   */
-object ProcessFunctionTest {
+object KeyProcessFunctionTest {
   def main(args: Array[String]): Unit = {
 
     val env = StreamExecutionEnvironment.getExecutionEnvironment
     //便于测试，并行度设置为1
     env.setParallelism(1)
 
+    env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
+
     //设置source 本地socket
-    val text: DataStream[String] = env.socketTextStream("hadoop000", 9000)
+    val text: DataStream[String] = env.socketTextStream("hadoop001", 9000)
 
     val value = text
         //.flatMap(_.split(","))
@@ -27,6 +31,11 @@ object ProcessFunctionTest {
       TemperatureObj(arr(0),arr(1).toLong,arr(2).toDouble)
     })
     val keyData:DataStream[String] =  value
+      .assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor[TemperatureObj](Time.milliseconds(1000)) {
+        override def extractTimestamp(element: TemperatureObj): Long = {
+          return element.timestamp*1000
+        }
+      })
       .keyBy(_.id).process(TempIncreWarning(10*1000L))
 
     keyData.print("tempincrewarning")
@@ -46,6 +55,9 @@ case class  TempIncreWarning(val interval:Long) extends  KeyedProcessFunction[St
 
     //当定时器触发时候调用这个方法 这个方法的逻辑只要输出报警数据
     out.collect("10s连续温度上升报警")
+
+    println("+++++++++++++"+ctx.timerService().currentWatermark())
+
     //删除定时器和清空状态里面的值
     ctx.timerService().deleteProcessingTimeTimer(lastTimerState.value())
     lastTimerState.clear()
@@ -72,8 +84,6 @@ case class  TempIncreWarning(val interval:Long) extends  KeyedProcessFunction[St
       ctx.timerService().deleteProcessingTimeTimer(lastTimer)
       lastTimerState.clear()
     }
-
-
 
   }
 }
