@@ -46,27 +46,30 @@ case class  TempIncreWarning(val interval:Long) extends  KeyedProcessFunction[St
 
     //当定时器触发时候调用这个方法 这个方法的逻辑只要输出报警数据
     out.collect("10s连续温度上升报警")
+    //删除定时器和清空状态里面的值
+    ctx.timerService().deleteProcessingTimeTimer(lastTimerState.value())
+    lastTimerState.clear()
 
   }
   override def processElement(value: TemperatureObj, ctx: KeyedProcessFunction[String, TemperatureObj, String]#Context, out: Collector[String]): Unit = {
     //获取上一次温度
     val lastTemp = lastTempState.value()
+    //获取上个定时器的时间
+    val lastTimer = lastTimerState.value()
     //更新温度状态
     lastTempState.update(value.temperature)
     //如果温度在上升 定时器状态值为0 首次要定时器状态是0 中间温度有下降因为定时器删除了，定时器状态也清除了 所以定时器状态还是0
-    if(value.temperature>lastTemp && lastTimerState.value()==0){
+    if(value.temperature>lastTemp && lastTimer==0){
      val timer = ctx.timerService().currentProcessingTime()+interval
       //注册定时器
       ctx.timerService().registerProcessingTimeTimer(timer)
       //更新定时器时间状态
       lastTimerState.update(timer)
     }
-    //如果温度有下降 要删除原来定时器 重新建立定时器
+    //如果温度有下降  要删除原来定时器 重新建立定时器
     else if (value.temperature  < lastTemp){
-      //获取上个定时器的时间
-      val lastTimer = lastTimerState.value()
+      //删除定时器和清空状态里面的值
       ctx.timerService().deleteProcessingTimeTimer(lastTimer)
-      //清除定时器时间状态
       lastTimerState.clear()
     }
 

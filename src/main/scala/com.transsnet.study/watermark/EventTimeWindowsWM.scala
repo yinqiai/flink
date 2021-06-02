@@ -37,7 +37,7 @@ object EventTimeWindowsWM {
           }
         })
       val textKeyStream: KeyedStream[(String, Long, Int), Tuple] = textWithEventTimeDstream.keyBy(0)
-
+      
       //textKeyStream.print("textkey:")
       val windowStream: WindowedStream[(String, Long, Int), Tuple, TimeWindow] = textKeyStream
         //滚动窗口
