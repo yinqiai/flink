@@ -1,10 +1,13 @@
 package com.transsnet.study.tableApi
 
 
+import org.apache.flink.streaming.api.TimeCharacteristic
+import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor
 import org.apache.flink.streaming.api.scala.{DataStream, OutputTag, StreamExecutionEnvironment, _}
+import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.table.api.scala.StreamTableEnvironment
-
-import  org.apache.flink.table.api.scala._
+import org.apache.flink.table.api.scala._
+import org.apache.flink.types.Row
 
 /**
   * @author yinqi
@@ -15,37 +18,51 @@ object FlinkTableTest {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
     //便于测试，并行度设置为1
     env.setParallelism(1)
+    env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 
-    //
-    val text: DataStream[String] = env.readTextFile("C:\\Users\\11597\\Desktop\\palmpay_new\\flink\\src\\main\\resources\\table_test.txt")
-
+    //val text: DataStream[String] = env.readTextFile("C:\\Users\\11597\\Desktop\\palmpay_new\\flink\\src\\main\\resources\\table_test.txt")
+    val text: DataStream[String] =  env.socketTextStream("hadoop000", 9000)
     val value = text
         //.flatMap(_.split(","))
       //先转化为对象
       .map(data => {val arr = data.split(",")
       TemperatureObj(arr(0),arr(1).toLong,arr(2).toDouble)
     })
+      .assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor[TemperatureObj](Time.milliseconds(1000)) {
+        override def extractTimestamp(element: TemperatureObj): Long = {
+          return element.timestamp*1000
+        }
+      })
     //创建table执行环境
      val tableEnv = StreamTableEnvironment.create(env)
-    //调用dataApi转换  dataStream ->Table
+
+    /*//调用dataApi转换  dataStream ->Table
     val dataTable = tableEnv.fromDataStream(value)
     //处理数据方式一 调用相关select filter等api
     //过滤数据
     val resultTable  =dataTable.select("id,temperature")//也可以写成('id,'temperature)
-        .filter(" id == 'sensor_1'")
+       .filter(" id == 'sensor_1'")
     //可以转化为datastream输出  Table->dataStream
-    resultTable.toAppendStream[(String,Double)].print("result")
+    resultTable.toAppendStream[(String,Double)].print("result")*/
+
+    val resultTable = tableEnv.fromDataStream(value,'id,'temperature,'timestamp1.rowtime)
+    resultTable.printSchema()
+    resultTable.toAppendStream[Row].print("result")
+
+
+    //打印执行计划
+    /*println(tableEnv.explain(resultTable))*/
 
     //处理数据方式二 注册临时表 直接写sql
     //用table env把Table数据类型注册临时表
-    tableEnv.createTemporaryView("temp_table",dataTable)
+   /* tableEnv.createTemporaryView("temp_table",dataTable)
 
     val sql ="select id ,temperature from temp_table where id = 'sensor_1' "
      //执行sql得到 Table结果数据
     val resultSqlTable = tableEnv.sqlQuery(sql)
 
     //跟上面一样转化为datastream输出  Table->dataStream
-    resultSqlTable.toAppendStream[(String,Double)].print("result-sql")
+    resultSqlTable.toAppendStream[(String,Double)].print("result-sql")*/
 
     env.execute("Table Api test")
 
