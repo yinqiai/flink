@@ -14,7 +14,7 @@ import org.apache.flink.api.scala._
 /**
   * @author yinqi
   * @date 2021/5/27
-  *
+  *练习
   */
 object FlinkOperator {
   def main(args: Array[String]): Unit = {

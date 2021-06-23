@@ -10,9 +10,21 @@ object Test {
    /* Option(None) match { case Some(c) => println(c)
     case None => println("None") }*/
 
-    val a="yinqi".map((_,1))
+    /*val a="yinqi".map((_,1))
 
     println(a)
-    println(Long.MaxValue)
+    println(Long.MaxValue)*/
+
+    /*val a =Iterable[ChannelInfo]
+    a.apply()*/
+
+    val aggregateResult=List(8,new yinqi,5)
+    val iterator=aggregateResult.iterator
+    println(aggregateResult.head)
+  while(iterator.hasNext==true)
+{println(iterator)
+    println(iterator.next())}
   }
+
+  case class yinqi()
 }
