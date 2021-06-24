@@ -37,7 +37,7 @@ object HotItems {
       .assignAscendingTimestamps(_.timestamp * 1000)
       .filter(_.behavior == "pv")
       .keyBy("itemId")
-      .timeWindow(Time.minutes(60), Time.minutes(5))
+      .timeWindow(Time.minutes(60),Time.minutes(5))
       .aggregate(new CountAgg(), new WindowResultFunction())
       .keyBy(1)
       .process(new TopNHotItems(3))
@@ -78,28 +78,38 @@ object HotItems {
     }
 
     override def processElement(input: ItemViewCount, context: KeyedProcessFunction[Tuple, ItemViewCount, String]#Context, collector: Collector[String]): Unit = {
-      // 每条数据都保存到状态中 itemState.add(input)
+      // 每条数据都保存到状态中
+      itemState.add(input)
       // 注册 windowEnd+1 的 EventTime Timer, 当触发时，说明收齐了属于 windowEnd 窗口的所 有商品数据
       // 也就是当程序看到 windowend + 1 的水位线 watermark 时，触发 onTimer 回调函数
-      context.timerService.registerEventTimeTimer(input.windowEnd + 1) }
+      context.timerService.registerEventTimeTimer(input.windowEnd + 1)
+    }
       override def onTimer(timestamp: Long, ctx: KeyedProcessFunction[Tuple, ItemViewCount, String]#OnTimerContext, out: Collector[String]): Unit={
         // 获取收到的所有商品点击量
-        val allItems: ListBuffer[ItemViewCount] = ListBuffer()
+          val allItems: ListBuffer[ItemViewCount] = ListBuffer()
         import scala.collection.JavaConversions._
         for (item <- itemState.get) {
           allItems += item
         }
-        // 提前清除状态中的数据，释放空间 itemState.clear()
+        // 提前清除状态中的数据，释放空间
+        itemState.clear()
         // 按照点击量从大到小排序
         val sortedItems = allItems.sortBy(_.count)(Ordering.Long.reverse).take(topSize)
         val result: StringBuilder = new StringBuilder
         result.append("====================================\n")
         result.append("时间: ")
-          .append(new Timestamp(timestamp - 1)).append("\n")
+          .append(new Timestamp(timestamp - 1))
+          .append("\n")
         for (i <- sortedItems.indices) {
           val currentItem: ItemViewCount = sortedItems(i)
           // e.g. No1： 商品 ID=12224 浏览量=2413
-          result.append("No").append(i + 1).append(":").append(" 商品 ID=").append(currentItem.itemId).append(" 浏览量=").append(currentItem.count).append("\n")
+          result.append("No").append(i + 1)
+            .append(":")
+            .append(" 商品 ID=")
+            .append(currentItem.itemId)
+            .append(" 浏览量=")
+            .append(currentItem.count)
+            .append("\n")
         }
         result.append("====================================\n\n")
         // 控制输出频率，模拟实时滚动结果
