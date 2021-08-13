@@ -86,6 +86,7 @@ object HotItems {
     }
       override def onTimer(timestamp: Long, ctx: KeyedProcessFunction[Tuple, ItemViewCount, String]#OnTimerContext, out: Collector[String]): Unit={
         // 获取收到的所有商品点击量
+        println("当前线程号："+ctx.getCurrentKey)
           val allItems: ListBuffer[ItemViewCount] = ListBuffer()
         import scala.collection.JavaConversions._
         for (item <- itemState.get) {
